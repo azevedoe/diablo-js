@@ -1055,12 +1055,11 @@
 
   const typeMonsters = ["SK", "FS", "SI"];
 
-  for (var i = 0; i < 2; i++)
-    monsters.push(new AgressiveMob(randomx(), randomy(), "SK"));
-  for (var i = 0; i < 2; i++)
-    monsters.push(new AgressiveMob(randomx(), randomy(), "FS"));
-  for (var i = 0; i < 2; i++)
-    monsters.push(new AgressiveMob(randomx(), randomy(), "SI"));
+  typeMonsters.map((type) => {
+    for (var i = 0; i < 2; i++)
+      monsters.push(new AgressiveMob(randomx(), randomy(), type));
+  });
+  
   //for(var i=0;i<2;i++) barrels.push(new Barrel(randomx(),randomy()));
   for (var i = 0; i < 2; i++)
     potions.push(new PotionHealth(randomx(), randomy()));
