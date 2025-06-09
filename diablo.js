@@ -1083,17 +1083,19 @@
     }
   }
 
-  setInterval(function () {
+  const renderGame = () => {
     // random step for mobs, attack hero
     if (GameState.monsters.length == 0) return;
-    var m = GameState.monsters[Math.ceil(Math.random() * (GameState.monsters.length - 1))];
+    var m =
+      GameState.monsters[
+        Math.ceil(Math.random() * (GameState.monsters.length - 1))
+      ];
     if (typeof m.attacked != "object") {
       m.to_x = m.x + (Math.random() * s - s / 2);
       m.to_y = m.y + (Math.random() * s - s / 2);
     }
-    for (var i in GameState.monsters) {
-      var m = GameState.monsters[i],
-        attackDist = 100;
+    GameState.monsters.map((m) => {
+      const attackDist = 100;
       if (m.attack && m.isAboveHero()) {
         if (
           Math.abs(hero.x - m.x) < attackDist &&
@@ -1107,8 +1109,10 @@
           m.to_y = hero.y;
         }
       }
-    }
-  }, 200);
+    });
+  };
+
+  setInterval(renderGame(), 200);
 
   floor.canvas.onclick = function (e) {
     var mx = (e.offsetX == undefined ? e.layerX : e.offsetX) - floor.w / 2;
@@ -1144,7 +1148,7 @@
   setInterval(function () {
     if (imageCount > 0) return;
     hero.nextStep();
-    for (var i in GameState.monsters) GameState.monsters[i].nextStep();
+    GameState.monsters.map((monster) => monster.nextStep());
     floor.fillStyle = "black";
     floor.fillRect(0, 0, floor.w, floor.h);
     renderFloor();
