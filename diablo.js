@@ -1062,7 +1062,6 @@
       GameState.monsters.push(new AgressiveMob(randomx(), randomy(), type));
   });
 
-  //for(var i=0;i<2;i++) barrels.push(new Barrel(randomx(),randomy()));
   for (var i = 0; i < 2; i++)
     GameState.potions.push(new PotionHealth(randomx(), randomy()));
 
@@ -1228,8 +1227,13 @@
       click ? [] : [hero],
       click ? [] : GameState.walls,
     ];
-    for (var t in all)
-      for (var m in all[t]) if (all[t][m].isAboveHero()) tmp_zb.push(all[t][m]);
+
+    all.map((heros) => {
+      heros.map((hero) => {
+        if (hero.isAboveHero()) tmp_zb.push(hero);
+      });
+    });
+
     // asc sort
     tmp_zb.sort(function (a, b) {
       var c =
@@ -1241,7 +1245,11 @@
       return order ? c : 0 - c;
     });
     var all = [GameState.coins, GameState.deathmobs, tmp_zb];
-    for (var i in all) for (var j in all[i]) zb.push(all[i][j]);
+    all.map((heros) => {
+      heros.map((hero) => {
+        zb.push(hero);
+      });
+    });
     return zb;
   }
 
@@ -1249,8 +1257,8 @@
     var zb = loadZb(true, true);
     var cx = (floor.click_x - floor.click_y) * acos,
       cy = ((floor.click_x + floor.click_y) / 2) * asin;
-    for (var i in zb) {
-      var m = zb[i];
+
+    zb.map((m) => {
       var spr = m.sprite;
       var sx = (m.x - m.y) * acos + m.offset_x,
         sy = ((m.x + m.y) / 2) * asin + m.offset_y;
@@ -1266,14 +1274,13 @@
         m.use(hero);
         return true;
       }
-    }
+    });
     return false;
   }
 
   function renderObjects() {
     var zb = loadZb(false);
-    for (z in zb) {
-      var m = zb[z];
+    zb.map((m) => {
       floor.save();
       var sx = (m.x - m.y) * acos + m.offset_x,
         sy = ((m.x + m.y) / 2) * asin + m.offset_y;
@@ -1316,7 +1323,7 @@
         floor.fillRect(sx - lm / 2, sy + 1, lr, 4);
         floor.restore();
       }
-    }
+    });
   }
 
   function renderFloor() {
