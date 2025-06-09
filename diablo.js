@@ -1046,29 +1046,31 @@
   }, 2000);
 
   // aggresive mobs
-  var monsters = [],
-    deathmobs = [],
-    barrels = [],
-    coins = [],
-    potions = [],
-    walls = [];
+  const GameState = {
+    monsters: [],
+    deathmobs: [],
+    barrels: [],
+    coins: [],
+    potions: [],
+    walls: [],
+  };
 
   const typeMonsters = ["SK", "FS", "SI"];
 
   typeMonsters.map((type) => {
     for (var i = 0; i < 2; i++)
-      monsters.push(new AgressiveMob(randomx(), randomy(), type));
+      GameState.monsters.push(new AgressiveMob(randomx(), randomy(), type));
   });
-  
+
   //for(var i=0;i<2;i++) barrels.push(new Barrel(randomx(),randomy()));
   for (var i = 0; i < 2; i++)
-    potions.push(new PotionHealth(randomx(), randomy()));
+    GameState.potions.push(new PotionHealth(randomx(), randomy()));
 
   for (var y in level.wall.map) {
     for (var x in level.wall.map[y]) {
       var index = level.wall.map[y][x];
       if (index > 0) {
-        walls.push(new Wall(index, x * s, y * s));
+        GameState.walls.push(new Wall(index, x * s, y * s));
       }
     }
   }
@@ -1076,21 +1078,21 @@
     for (var x in level.object.map[y]) {
       var index = level.object.map[y][x];
       if (index > 0) {
-        walls.push(new WallObject(index, x * s, y * s));
+        GameState.walls.push(new WallObject(index, x * s, y * s));
       }
     }
   }
 
   setInterval(function () {
     // random step for mobs, attack hero
-    if (monsters.length == 0) return;
-    var m = monsters[Math.ceil(Math.random() * (monsters.length - 1))];
+    if (GameState.monsters.length == 0) return;
+    var m = GameState.monsters[Math.ceil(Math.random() * (GameState.monsters.length - 1))];
     if (typeof m.attacked != "object") {
       m.to_x = m.x + (Math.random() * s - s / 2);
       m.to_y = m.y + (Math.random() * s - s / 2);
     }
-    for (var i in monsters) {
-      var m = monsters[i],
+    for (var i in GameState.monsters) {
+      var m = GameState.monsters[i],
         attackDist = 100;
       if (m.attack && m.isAboveHero()) {
         if (
@@ -1142,7 +1144,7 @@
   setInterval(function () {
     if (imageCount > 0) return;
     hero.nextStep();
-    for (var i in monsters) monsters[i].nextStep();
+    for (var i in GameState.monsters) GameState.monsters[i].nextStep();
     floor.fillStyle = "black";
     floor.fillRect(0, 0, floor.w, floor.h);
     renderFloor();
@@ -1216,11 +1218,11 @@
     var tmp_zb = [],
       zb = [];
     var all = [
-      monsters,
-      potions,
-      barrels,
+      GameState.monsters,
+      GameState.potions,
+      GameState.barrels,
       click ? [] : [hero],
-      click ? [] : walls,
+      click ? [] : GameState.walls,
     ];
     for (var t in all)
       for (var m in all[t]) if (all[t][m].isAboveHero()) tmp_zb.push(all[t][m]);
@@ -1234,7 +1236,7 @@
         (a.y + a.offset_y);
       return order ? c : 0 - c;
     });
-    var all = [coins, deathmobs, tmp_zb];
+    var all = [GameState.coins, GameState.deathmobs, tmp_zb];
     for (var i in all) for (var j in all[i]) zb.push(all[i][j]);
     return zb;
   }
@@ -1361,8 +1363,8 @@
     for (var y = 4; y >= 0; y--)
       for (var x = 0; x <= 4; x++)
         wallOffset.push({ x: (x * s) / 5, y: (y * s) / 5 });
-    for (var i in walls) {
-      var v = walls[i],
+    for (var i in GameState.walls) {
+      var v = GameState.walls[i],
         walk = v.header.walk;
       if (v.header.orientation == 4) continue;
       for (var j = 0; j < 25; j++)
@@ -1440,7 +1442,7 @@
             h.main_index == this.header.main_index &&
             h.sub_index == this.header.sub_index
           ) {
-            walls.push(new Wall(inx, x, y));
+            GameState.walls.push(new Wall(inx, x, y));
             break;
           }
         }
@@ -1476,9 +1478,9 @@
     this.used = false;
     this.use = function (mob) {
       if (!this.used && Math.random() > 0.5)
-        coins.push(new Coin(this.x + 50, this.y + 50));
+        GameState.coins.push(new Coin(this.x + 50, this.y + 50));
       if (!this.used && Math.random() > 0.5)
-        potions.push(new PotionHealth(this.x + 50, this.y));
+        GameState.potions.push(new PotionHealth(this.x + 50, this.y));
       this.used = true;
     };
   }
@@ -1489,8 +1491,8 @@
       if (mob.doAttack) mob.doAttack(this);
     };
     this.damage = function (damage) {
-      remove(barrels, this);
-      if (Math.random() > 0.7) coins.push(new Coin(this.x, this.y));
+      remove(GameState.barrels, this);
+      if (Math.random() > 0.7) GameState.coins.push(new Coin(this.x, this.y));
     };
   }
 
@@ -1498,7 +1500,7 @@
     Shape.call(this, coinSprite, x, y);
     this.coins = Math.floor(Math.random() * 1000);
     this.use = function (mob) {
-      remove(coins, this);
+      remove(GameState.coins, this);
       mob.coins += this.coins;
     };
   }
@@ -1508,7 +1510,7 @@
     this.sprite.steps = 6;
     this.sprite.angles = 4;
     this.use = function (mob) {
-      if (mob.addToBelt(this)) remove(potions, this);
+      if (mob.addToBelt(this)) remove(GameState.potions, this);
     };
   }
 
@@ -1593,8 +1595,8 @@
       var health = this.health - (damage * 1000) / (1000 - this.resistance);
       if (health <= 0) {
         this.health = 0;
-        remove(monsters, this);
-        if (this.death) deathmobs.push(new DeathMob(this));
+        remove(GameState.monsters, this);
+        if (this.death) GameState.deathmobs.push(new DeathMob(this));
 
         killMessage = "Enemy Down!";
         killMessageTimer = Date.now();
